@@ -22,7 +22,8 @@ class SongsViewController: UIViewController {
     private var currentPlayingSongId: Int?
     
     lazy var downloadsSession: URLSession = {
-        let configuration = URLSessionConfiguration.default
+        let configuration = URLSessionConfiguration.background(withIdentifier:
+            "backgroundSessionConfiguration")
         return URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
     }()
     
@@ -290,6 +291,16 @@ extension SongsViewController: URLSessionDownloadDelegate {
             if let index = download.song.id, let cell = strongSelf.tableView.cellForRow(at: IndexPath(row: index,
                                                                        section: 0)) as? SongTableViewCell {
                 cell.updateDisplay(progress: download.progress)
+            }
+        }
+    }
+    
+    func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
+        DispatchQueue.main.async {
+            if let appDelegate = UIApplication.shared.delegate as? AppDelegate,
+                let completionHandler = appDelegate.backgroundSessionCompletionHandler {
+                appDelegate.backgroundSessionCompletionHandler = nil
+                completionHandler()
             }
         }
     }
