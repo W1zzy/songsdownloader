@@ -205,6 +205,8 @@ extension SongsViewController: SongTableViewCellDelegate {
                         currentPlayingSongId = dataSource[indexPath.row].id
                     } catch {
                         show(error: "Audio file can't be played")
+                        dataSource[indexPath.row].resetState()
+                        reloadCell(at: indexPath)
                     }
                 } else {
                     show(error: "Audio file is broken, try to download again")
